@@ -1,0 +1,57 @@
+.headerContainer {
+  position: fixed;
+  top: 0;
+  background-color: #222;
+  padding: 8px 32px 8px 16px;
+  height: 36px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  align-items: center;
+}
+.buttonContaner {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  padding-right: 32px;
+}
+.headerLogo {
+  height: 35px;
+  background-color: #ff7f7f;
+  -webkit-animation: spin 8s linear infinite;
+  -moz-animation: spin 8s linear infinite;
+  animation: spin 8s linear infinite;
+}
+.tabPanel {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.formInput {
+  margin-bottom: 20px;
+}
+.bottomButton {
+  margin-top: 20px;
+}
+.promptText{
+    margin: 10px 0px;
+}
+@-moz-keyframes spin {
+  100% {
+    -moz-transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+@keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
