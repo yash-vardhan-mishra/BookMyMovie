@@ -51,14 +51,46 @@ const Header = (props) => {
         } else if (res.message) {
           alert(res.message);
         }
-        console.log(
-          "the response is, ",
-          res,
-          "while request is, ",
-          JSON.stringify(signUpData)
-        );
       })
-      .catch((err) => console.log("the error is, ", err));
+      .catch((err) => {
+        alert("Something went wrong");
+        console.log("the error is, ", err);
+      });
+  };
+
+  const login = async () => {
+    const param = window.btoa(`${loginData.username}:${loginData.password}`);
+    const requestData = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json;charset=UTF-8",
+        authorization: `Basic ${param}`,
+      },
+    };
+    try {
+      const rawResponse = await fetch(
+        `${props.baseUrl}auth/login`,
+        requestData
+      );
+      console.log("rawResponse is, ", rawResponse);
+      if (rawResponse.status === 200) {
+        const response = await rawResponse.json();
+        window.sessionStorage.setItem("user-details", JSON.stringify(response));
+        window.sessionStorage.setItem(
+          "access-token",
+          rawResponse.headers.get("access-token")
+        );
+        console.log("the response is, ", response);
+      } else {
+        const response = await rawResponse.json();
+        alert(response.message);
+        console.log("the response is, ", response);
+      }
+    } catch (error) {
+      alert("Something went wrong");
+      console.log("the error is, ", error);
+    }
   };
 
   return (
@@ -91,7 +123,7 @@ const Header = (props) => {
         }}
       >
         <Tabs
-          fullWidth
+          variant="fullWidth"
           value={tabVal}
           onChange={handleChange}
           aria-label="simple tabs example"
@@ -114,11 +146,7 @@ const Header = (props) => {
             type="password"
           />
           <div className="bottomButton">
-            <Button
-              // onClick={() => setModalVisible(true)}
-              color="primary"
-              variant="contained"
-            >
+            <Button onClick={login} color="primary" variant="contained">
               Login
             </Button>
           </div>
