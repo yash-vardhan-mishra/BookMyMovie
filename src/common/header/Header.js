@@ -1,16 +1,9 @@
 import React, { useState } from "react";
 import Modal from "react-modal";
-import {
-  Button,
-  Tab,
-  Tabs,
-  FormControl,
-  InputLabel,
-  Input,
-  FormHelperText,
-} from "@material-ui/core";
+import { Button, Tab, Tabs } from "@material-ui/core";
 import HeaderLogo from "../../assets/logo.svg";
 import "./Header.css";
+import FormInput from "../formInput/FormInput";
 const registrationSuccessfulMessage = "Registration Successful. Please Login!";
 
 const Header = (props) => {
@@ -145,10 +138,10 @@ const Header = (props) => {
         onRequestClose={() => setModalVisible(false)}
         style={{
           content: {
-            width: "30%",
+            width: "40%",
             position: "absolute",
-            left: "35%",
-            right: "35%",
+            left: "30%",
+            right: "30%",
           },
         }}
       >
@@ -257,33 +250,4 @@ const TabPanel = (props) => {
   );
 };
 
-const FormInput = ({
-  label,
-  value,
-  onChange,
-  required,
-  id,
-  type,
-  showError,
-}) => (
-  <div className="formInput">
-    <FormControl>
-      <InputLabel htmlFor={id}>{label}</InputLabel>
-      <Input
-        value={value}
-        onChange={(e) => onChange(id, e.target.value)}
-        required={required}
-        id={id}
-        type={type}
-        aria-describedby={id}
-      />
-      {!value && required && showError ? (
-        <FormHelperText error>required</FormHelperText>
-      ) : null}
-    </FormControl>
-  </div>
-);
-FormInput.defaultProps = {
-  type: "text",
-};
 export default Header;

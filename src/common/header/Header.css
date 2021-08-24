@@ -9,6 +9,7 @@
   justify-content: space-between;
   flex-direction: row;
   align-items: center;
+  z-index: 100;
 }
 .buttonContaner {
   display: flex;
@@ -29,9 +30,6 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-}
-.formInput {
-  margin-bottom: 20px;
 }
 .bottomButton {
   margin-top: 20px;
