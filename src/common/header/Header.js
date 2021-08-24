@@ -7,6 +7,7 @@ import {
   FormControl,
   InputLabel,
   Input,
+  FormHelperText,
 } from "@material-ui/core";
 import HeaderLogo from "../../assets/logo.svg";
 import "./Header.css";
@@ -23,6 +24,8 @@ const Header = (props) => {
     username: "",
     password: "",
   });
+  const [emptyDataSubmittedToLogin, setEmptyDataSubmittedToLogin] =
+    useState(false);
   const [signUpData, setSignUpData] = useState({
     email_address: "",
     first_name: "",
@@ -30,6 +33,8 @@ const Header = (props) => {
     mobile_number: "",
     password: "",
   });
+  const [emptyDataSubmittedToSignUp, setEmptyDataSubmittedToSignUp] =
+    useState(false);
 
   const changeLoginData = (name, value) =>
     setLoginData((val) => ({ ...val, [name]: value }));
@@ -38,58 +43,83 @@ const Header = (props) => {
     setSignUpData((val) => ({ ...val, [name]: value }));
 
   const register = () => {
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(signUpData),
-    };
-    fetch(`${props.baseUrl}signup`, requestOptions)
-      .then((response) => response.json())
-      .then((res) => {
-        if (res.id) {
-          setIsRegistered(true);
-        } else if (res.message) {
-          alert(res.message);
-        }
-      })
-      .catch((err) => {
-        alert("Something went wrong");
-        console.log("the error is, ", err);
-      });
+    const { email_address, first_name, last_name, mobile_number, password } =
+      signUpData;
+    if (
+      !email_address ||
+      !first_name ||
+      !last_name ||
+      !mobile_number ||
+      !password
+    ) {
+      setEmptyDataSubmittedToSignUp(true);
+    } else {
+      if (emptyDataSubmittedToSignUp) {
+        setEmptyDataSubmittedToSignUp(false);
+      }
+      const requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(signUpData),
+      };
+      fetch(`${props.baseUrl}signup`, requestOptions)
+        .then((response) => response.json())
+        .then((res) => {
+          if (res.id) {
+            setIsRegistered(true);
+          } else if (res.message) {
+            alert(res.message);
+          }
+        })
+        .catch((err) => {
+          alert("Something went wrong");
+          console.log("the error is, ", err);
+        });
+    }
   };
 
   const login = async () => {
-    const param = window.btoa(`${loginData.username}:${loginData.password}`);
-    const requestData = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json;charset=UTF-8",
-        authorization: `Basic ${param}`,
-      },
-    };
-    try {
-      const rawResponse = await fetch(
-        `${props.baseUrl}auth/login`,
-        requestData
-      );
-      console.log("rawResponse is, ", rawResponse);
-      if (rawResponse.status === 200) {
-        const response = await rawResponse.json();
-        window.sessionStorage.setItem("user-details", JSON.stringify(response));
-        window.sessionStorage.setItem(
-          "access-token",
-          rawResponse.headers.get("access-token")
-        );
-        console.log("the response is, ", response);
-      } else {
-        const response = await rawResponse.json();
-        alert(response.message);
-        console.log("the response is, ", response);
+    if (!loginData.username || !loginData.password) {
+      setEmptyDataSubmittedToLogin(true);
+    } else {
+      if (emptyDataSubmittedToLogin) {
+        setEmptyDataSubmittedToLogin(false);
       }
-    } catch (error) {
-      alert("Something went wrong");
-      console.log("the error is, ", error);
+      const param = window.btoa(`${loginData.username}:${loginData.password}`);
+      const requestData = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json;charset=UTF-8",
+          authorization: `Basic ${param}`,
+        },
+      };
+      try {
+        const rawResponse = await fetch(
+          `${props.baseUrl}auth/login`,
+          requestData
+        );
+        console.log("rawResponse is, ", rawResponse);
+        if (rawResponse.status === 200) {
+          const response = await rawResponse.json();
+          window.sessionStorage.setItem(
+            "user-details",
+            JSON.stringify(response)
+          );
+          window.sessionStorage.setItem(
+            "access-token",
+            rawResponse.headers.get("access-token")
+          );
+          console.log("the response is, ", response);
+        } else {
+          const response = await rawResponse.json();
+          alert(response.message);
+          console.log("the response is, ", response);
+        }
+      } catch (error) {
+        alert("Something went wrong");
+        console.log("the error is, ", error);
+      }
     }
   };
 
@@ -137,6 +167,8 @@ const Header = (props) => {
             onChange={changeLoginData}
             value={loginData.username}
             label="Username *"
+            required
+            showError={emptyDataSubmittedToLogin}
           />
           <FormInput
             id="password"
@@ -144,6 +176,8 @@ const Header = (props) => {
             value={loginData.password}
             label="Password *"
             type="password"
+            required
+            showError={emptyDataSubmittedToLogin}
           />
           <div className="bottomButton">
             <Button onClick={login} color="primary" variant="contained">
@@ -157,18 +191,24 @@ const Header = (props) => {
             onChange={changeSignUpData}
             value={signUpData.first_name}
             label="First name *"
+            required
+            showError={emptyDataSubmittedToSignUp}
           />
           <FormInput
             id="last_name"
             onChange={changeSignUpData}
             value={signUpData.last_name}
             label="Last Name *"
+            required
+            showError={emptyDataSubmittedToSignUp}
           />
           <FormInput
             id="email_address"
             onChange={changeSignUpData}
             value={signUpData.email_address}
             label="Email *"
+            required
+            showError={emptyDataSubmittedToSignUp}
           />
           <FormInput
             id="password"
@@ -176,6 +216,8 @@ const Header = (props) => {
             value={signUpData.password}
             label="Password *"
             type="password"
+            required
+            showError={emptyDataSubmittedToSignUp}
           />
           <FormInput
             id="mobile_number"
@@ -183,6 +225,8 @@ const Header = (props) => {
             value={signUpData.mobile_number}
             label="Contact Number *"
             type="tel"
+            required
+            showError={emptyDataSubmittedToSignUp}
           />
           {isRegistered ? (
             <div className="promptText">{registrationSuccessfulMessage}</div>
@@ -213,7 +257,15 @@ const TabPanel = (props) => {
   );
 };
 
-const FormInput = ({ label, value, onChange, required, id, type }) => (
+const FormInput = ({
+  label,
+  value,
+  onChange,
+  required,
+  id,
+  type,
+  showError,
+}) => (
   <div className="formInput">
     <FormControl>
       <InputLabel htmlFor={id}>{label}</InputLabel>
@@ -225,6 +277,9 @@ const FormInput = ({ label, value, onChange, required, id, type }) => (
         type={type}
         aria-describedby={id}
       />
+      {!value && required && showError ? (
+        <FormHelperText error>required</FormHelperText>
+      ) : null}
     </FormControl>
   </div>
 );
