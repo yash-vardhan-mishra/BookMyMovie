@@ -4,8 +4,9 @@ import { Button, Tab, Tabs } from "@material-ui/core";
 import HeaderLogo from "../../assets/logo.svg";
 import "./Header.css";
 import FormInput from "../formInput/FormInput";
+import { useEffect } from "react";
 const registrationSuccessfulMessage = "Registration Successful. Please Login!";
-
+Modal.setAppElement("#root");
 const Header = (props) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [tabVal, setTabVal] = useState(0);
@@ -13,6 +14,7 @@ const Header = (props) => {
   const handleChange = (event, newValue) => {
     setTabVal(newValue);
   };
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginData, setLoginData] = useState({
     username: "",
     password: "",
@@ -28,6 +30,13 @@ const Header = (props) => {
   });
   const [emptyDataSubmittedToSignUp, setEmptyDataSubmittedToSignUp] =
     useState(false);
+
+  useEffect(() => {
+    const accessToken = sessionStorage.getItem("access-token");
+    if (accessToken) {
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   const changeLoginData = (name, value) =>
     setLoginData((val) => ({ ...val, [name]: value }));
@@ -95,14 +104,13 @@ const Header = (props) => {
         console.log("rawResponse is, ", rawResponse);
         if (rawResponse.status === 200) {
           const response = await rawResponse.json();
-          window.sessionStorage.setItem(
-            "user-details",
-            JSON.stringify(response)
-          );
-          window.sessionStorage.setItem(
+          sessionStorage.setItem("user-details", JSON.stringify(response));
+          sessionStorage.setItem(
             "access-token",
             rawResponse.headers.get("access-token")
           );
+          setModalVisible(false);
+          setIsLoggedIn(true);
           console.log("the response is, ", response);
         } else {
           const response = await rawResponse.json();
@@ -116,21 +124,39 @@ const Header = (props) => {
     }
   };
 
+  const logout = () =>
+    fetch(`${props.baseUrl}auth/logout`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache",
+        Authorization: "Bearer " + sessionStorage.getItem("access-token"),
+      },
+    }).then((response) => {
+      if (response.status === 200) {
+        sessionStorage.clear();
+        setIsLoggedIn(false);
+        alert("Logged Out Successfully");
+      }
+    });
+
   return (
     <div className="headerContainer">
       <img className="headerLogo" alt="Header Logo" src={HeaderLogo} />
       <div className="buttonContaner">
-        <div style={{ marginRight: 12 }}>
-          <Button color="primary" variant="contained">
-            Book Show
-          </Button>
-        </div>
+        {props.isReleased ? (
+          <div style={{ marginRight: 12 }}>
+            <Button color="primary" variant="contained">
+              Book Show
+            </Button>
+          </div>
+        ) : null}
         <Button
-          onClick={() => setModalVisible(true)}
+          onClick={isLoggedIn ? () => logout() : () => setModalVisible(true)}
           color="default"
           variant="contained"
         >
-          Login
+          {isLoggedIn ? "Log Out" : "Login"}
         </Button>
       </div>
       <Modal

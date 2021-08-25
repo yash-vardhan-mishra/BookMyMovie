@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import Header from "../../common/header/Header";
 import "./Home.css";
 import {
@@ -6,7 +7,6 @@ import {
   GridList,
   GridListTileBar,
   Card,
-  CardHeader,
   withStyles,
   CardContent,
   Select,
@@ -153,28 +153,30 @@ const Home = (props) => {
           id: "artists",
         }}
       >
-        {artists.map((item, index) => {
-          const artistName = `${item.first_name} ${item.last_name}`;
-          return (
-            <MenuItem value={artistName} key={item.id}>
-              <div
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <Checkbox
-                  checked={
-                    filterData.artists &&
-                    filterData.artists.length &&
-                    filterData.artists.includes(artistName)
-                  }
-                />
-                {artistName}
-              </div>
-            </MenuItem>
-          );
-        })}
+        {artists &&
+          artists.length &&
+          artists.map((item, index) => {
+            const artistName = `${item.first_name} ${item.last_name}`;
+            return (
+              <MenuItem value={artistName} key={item.id}>
+                <div
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Checkbox
+                    checked={
+                      filterData.artists &&
+                      filterData.artists.length &&
+                      filterData.artists.includes(artistName)
+                    }
+                  />
+                  {artistName}
+                </div>
+              </MenuItem>
+            );
+          })}
       </Select>
     </FormControl>
   );
@@ -192,25 +194,27 @@ const Home = (props) => {
           id: "genre",
         }}
       >
-        {genre.map((item, index) => (
-          <MenuItem value={item.genre} key={item.id}>
-            <div
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
-              <Checkbox
-                checked={
-                  filterData.genre &&
-                  filterData.genre.length &&
-                  filterData.genre.includes(item.genre)
-                }
-              />
-              {item.genre}
-            </div>
-          </MenuItem>
-        ))}
+        {genre &&
+          genre.length &&
+          genre.map((item, index) => (
+            <MenuItem value={item.genre} key={item.id}>
+              <div
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <Checkbox
+                  checked={
+                    filterData.genre &&
+                    filterData.genre.length &&
+                    filterData.genre.includes(item.genre)
+                  }
+                />
+                {item.genre}
+              </div>
+            </MenuItem>
+          ))}
       </Select>
     </FormControl>
   );
@@ -237,25 +241,50 @@ const Home = (props) => {
               cellHeight={250}
               cols={6}
             >
-              {upcomingMovies.map((item, index) => (
-                <GridListTile cellHeight={250} cols={1} key={item.id}>
-                  <img src={item.poster_url} alt={item.title} />
-                  <GridListTileBar title={item.title} />
-                </GridListTile>
-              ))}
+              {upcomingMovies &&
+                upcomingMovies.length &&
+                upcomingMovies.map((item, index) => (
+                  <GridListTile
+                    onClick={() => {
+                      props.history.push({
+                        pathname: `/movie/${item.id}`,
+                        id: item.id,
+                        isReleased: false,
+                      });
+                    }}
+                    cellHeight={250}
+                    cols={1}
+                    key={item.id}
+                  >
+                    <img src={item.poster_url} alt={item.title} />
+                    <GridListTileBar title={item.title} />
+                  </GridListTile>
+                ))}
             </GridList>
             <div className="middleContainer">
               <div className="releasedMoviesContainer">
                 <GridList spacing={12} cellHeight={350} cols={4}>
-                  {releasedMovies.map((item, index) => (
-                    <GridListTile key={item.id} cols={1}>
-                      <img src={item.poster_url} alt={item.title} />
-                      <GridListTileBar
-                        title={item.title}
-                        subtitle={item.release_date}
-                      />
-                    </GridListTile>
-                  ))}
+                  {releasedMovies &&
+                    releasedMovies.length &&
+                    releasedMovies.map((item, index) => (
+                      <GridListTile
+                        onClick={() => {
+                          props.history.push({
+                            pathname: `/movie/${item.id}`,
+                            id: item.id,
+                            isReleased: true,
+                          });
+                        }}
+                        key={item.id}
+                        cols={1}
+                      >
+                        <img src={item.poster_url} alt={item.title} />
+                        <GridListTileBar
+                          title={item.title}
+                          subtitle={item.release_date}
+                        />
+                      </GridListTile>
+                    ))}
                 </GridList>
               </div>
               <div className="filterPane">
