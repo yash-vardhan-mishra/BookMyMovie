@@ -2,3 +2,31 @@
   position: relative;
   top: 52px;
 }
+.detailsContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 12px 24px 0px 24px;
+  flex: 1;
+}
+.leftPane {
+  display: flex;
+  width: 20%;
+}
+.middlePane {
+  display: flex;
+  width: 60%;
+  flex-direction: column;
+}
+.rightPane {
+  display: flex;
+  width: 20%;
+  flex-direction: column;
+}
+.trailer {
+  margin-top: 16px;
+}
+.artists {
+  margin: 16px 0px;
+}

@@ -148,7 +148,9 @@ const Header = (props) => {
           <div style={{ marginRight: 12 }}>
             <Button
               onClick={
-                isLoggedIn ? props.onBookShow() : () => setModalVisible(true)
+                isLoggedIn
+                  ? () => props.onBookShow()
+                  : () => setModalVisible(true)
               }
               color="primary"
               variant="contained"
