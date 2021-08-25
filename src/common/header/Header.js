@@ -146,7 +146,13 @@ const Header = (props) => {
       <div className="buttonContaner">
         {props.isReleased ? (
           <div style={{ marginRight: 12 }}>
-            <Button color="primary" variant="contained">
+            <Button
+              onClick={
+                isLoggedIn ? props.onBookShow() : () => setModalVisible(true)
+              }
+              color="primary"
+              variant="contained"
+            >
               Book Show
             </Button>
           </div>
@@ -277,3 +283,7 @@ const TabPanel = (props) => {
 };
 
 export default Header;
+
+Header.defaultProps = {
+  onBookShow: () => {},
+};

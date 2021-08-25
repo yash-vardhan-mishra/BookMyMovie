@@ -4,15 +4,16 @@ import Header from "../../common/header/Header";
 const Details = (props) => {
   const [data, setData] = useState({});
   useEffect(() => {
-    console.log("the id obtained from previous screen", props.location.id);
+    console.log("the id obtained from previous screen", props.match.params.id);
     const fetchMovies = async () => {
       try {
         const rawResponse = await fetch(
-          `${props.baseUrl}movies/${props.location.id}`
+          `${props.baseUrl}movies/${props.match.params.id}`
         );
         const response = await rawResponse.json();
         if (rawResponse.status === 200) {
           setData(response);
+          console.log("the response obtained is, ", response);
         } else {
           alert(response.message);
         }
@@ -20,27 +21,23 @@ const Details = (props) => {
         console.log("error is, ", error);
       }
     };
-    fetch(`${props.baseUrl}movies/${props.location.id}`)
-      .then((rawResponse) => {
-        if (rawResponse.status === 200) return rawResponse.json();
-        else {
-          console.log("the rawResponse is, ", rawResponse);
-        }
-      })
-      .then((res) => {
-        console.log("the details are, ", res);
-      })
-      .catch((err) => alert("something went wrong"));
     fetchMovies();
   }, []);
   console.log("the data is, ", data);
 
   return (
     <div className="container">
-      <Header {...props} isReleased={props.location.isReleased}/>
-      <div className="innerContainer">
-
-      </div>
+      <Header
+        {...props}
+        isReleased={props.location.isReleased}
+        onBookShow={() =>
+          props.history.push({
+            pathname: `/bookshow/${data.id}`,
+            id: data.id,
+          })
+        }
+      />
+      <div className="innerContainer"></div>
     </div>
   );
 };
