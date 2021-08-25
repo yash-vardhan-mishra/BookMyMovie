@@ -7,6 +7,7 @@ import {
   withStyles,
 } from "@material-ui/core";
 import "./FormInput.css";
+
 const styles = (theme) => ({
   input: {
     margin: theme.spacing.unit,
@@ -14,6 +15,7 @@ const styles = (theme) => ({
     maxWidth: 240,
   },
 });
+// custom reusable input component
 const FormInput = ({
   label,
   value,

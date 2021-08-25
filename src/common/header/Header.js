@@ -1,35 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 import { Button, Tab, Tabs } from "@material-ui/core";
-import HeaderLogo from "../../assets/logo.svg";
+
 import "./Header.css";
+import HeaderLogo from "../../assets/logo.svg";
 import FormInput from "../formInput/FormInput";
-import { useEffect } from "react";
+import { TabPanel } from "../tabPanel/TabPanel";
 const registrationSuccessfulMessage = "Registration Successful. Please Login!";
+
 Modal.setAppElement("#root");
+const initialSignUpState = {
+  email_address: "",
+  first_name: "",
+  last_name: "",
+  mobile_number: "",
+  password: "",
+};
+const initialLoginState = {
+  username: "",
+  password: "",
+};
 const Header = (props) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [tabVal, setTabVal] = useState(0);
   const [isRegistered, setIsRegistered] = useState(false);
-  const handleChange = (event, newValue) => {
-    setTabVal(newValue);
-  };
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loginData, setLoginData] = useState({
-    username: "",
-    password: "",
-  });
+  const [loginData, setLoginData] = useState(initialLoginState);
   const [emptyDataSubmittedToLogin, setEmptyDataSubmittedToLogin] =
     useState(false);
-  const [signUpData, setSignUpData] = useState({
-    email_address: "",
-    first_name: "",
-    last_name: "",
-    mobile_number: "",
-    password: "",
-  });
+  const [signUpData, setSignUpData] = useState(initialSignUpState);
   const [emptyDataSubmittedToSignUp, setEmptyDataSubmittedToSignUp] =
     useState(false);
+
+  const handleChange = (event, newValue) => {
+    setTabVal(newValue);
+    // clearing the registration data on tab change
+    clearRegistrationData();
+  };
+
+  const clearRegistrationData = () => {
+    setIsRegistered(false);
+    setSignUpData((val) => ({ ...val, ...initialSignUpState }));
+  };
 
   useEffect(() => {
     const accessToken = sessionStorage.getItem("access-token");
@@ -54,6 +66,7 @@ const Header = (props) => {
       !mobile_number ||
       !password
     ) {
+      // setting error state true if any required field is empty
       setEmptyDataSubmittedToSignUp(true);
     } else {
       if (emptyDataSubmittedToSignUp) {
@@ -87,6 +100,7 @@ const Header = (props) => {
       if (emptyDataSubmittedToLogin) {
         setEmptyDataSubmittedToLogin(false);
       }
+      // encoding username and password into base64 format to send it as authorization
       const param = window.btoa(`${loginData.username}:${loginData.password}`);
       const requestData = {
         method: "POST",
@@ -103,6 +117,7 @@ const Header = (props) => {
         );
         console.log("rawResponse is, ", rawResponse);
         if (rawResponse.status === 200) {
+          // retrieving token from raw response and storing it in session storage
           const response = await rawResponse.json();
           sessionStorage.setItem("user-details", JSON.stringify(response));
           sessionStorage.setItem(
@@ -110,6 +125,9 @@ const Header = (props) => {
             rawResponse.headers.get("access-token")
           );
           setModalVisible(false);
+          // clearing the login form data on successfully loggin int
+          setLoginData((val) => ({ ...val, ...initialLoginState }));
+
           setIsLoggedIn(true);
           console.log("the response is, ", response);
         } else {
@@ -130,10 +148,12 @@ const Header = (props) => {
       headers: {
         "Content-Type": "application/json",
         "Cache-Control": "no-cache",
+        // invalidating token via api
         Authorization: "Bearer " + sessionStorage.getItem("access-token"),
       },
     }).then((response) => {
       if (response.status === 200) {
+        // clearing session storage after successfully invalidating the token
         sessionStorage.clear();
         setIsLoggedIn(false);
         alert("Logged Out Successfully");
@@ -148,6 +168,7 @@ const Header = (props) => {
           <div style={{ marginRight: 12 }}>
             <Button
               onClick={
+                // conditionally triggering method on the basis of user's session
                 isLoggedIn
                   ? () => props.onBookShow()
                   : () => setModalVisible(true)
@@ -170,14 +191,7 @@ const Header = (props) => {
       <Modal
         isOpen={modalVisible}
         onRequestClose={() => setModalVisible(false)}
-        style={{
-          content: {
-            width: "40%",
-            position: "absolute",
-            left: "30%",
-            right: "30%",
-          },
-        }}
+        style={styles.modalContainer}
       >
         <Tabs
           variant="fullWidth"
@@ -269,23 +283,22 @@ const Header = (props) => {
   );
 };
 
-const TabPanel = (props) => {
-  const { children, value, index, ...other } = props;
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && <div className="tabPanel">{children}</div>}
-    </div>
-  );
-};
-
 export default Header;
 
 Header.defaultProps = {
   onBookShow: () => {},
+};
+
+const styles = {
+  modalContainer: {
+    content: {
+      width: "40%",
+      position: "absolute",
+      left: "30%",
+      right: "30%",
+    },
+    overlay: {
+      zIndex: 101,
+    },
+  },
 };

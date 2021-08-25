@@ -102,7 +102,7 @@ const Confirmation = (props) => {
     <div className="Details">
       <Header />
 
-      <div className="confirmation marginTop16">
+      <div className="confirmation">
         <div>
           <Link to={"/bookshow/" + props.match.params.id}>
             <Typography className="back">&#60; Back to Book Show</Typography>

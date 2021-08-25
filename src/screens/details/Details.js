@@ -12,17 +12,19 @@ import StarBorderIcon from "@material-ui/icons/StarBorder";
 
 import Header from "../../common/header/Header";
 import "./Details.css";
+
 const styles = (theme) => ({
   backButton: {
     marginTop: 8,
     marginLeft: 24,
   },
 });
+
 const Details = (props) => {
   const [data, setData] = useState({});
   const [rating, setRating] = useState(0);
   useEffect(() => {
-    console.log("the id obtained from previous screen", props.match.params.id);
+    // fetching a movie data by sending its id to api
     const fetchMovies = async () => {
       try {
         const rawResponse = await fetch(
@@ -42,10 +44,12 @@ const Details = (props) => {
     fetchMovies();
   }, []);
 
+  // rendering the 5 star rating component by mapping an array of size 5 into icons
   const renderRating = () => (
-    <div style={{ flexDirection: "row", alignItems: "center" }}>
+    <div className="ratingContainer">
       {[...Array(5)].map((item, index) => (
         <StarBorderIcon
+          key={`rating${index + 1}`}
           nativeColor={index < rating ? "yellow" : "black"}
           onClick={() => setRating(index + 1)}
         />
@@ -53,7 +57,6 @@ const Details = (props) => {
     </div>
   );
 
-  console.log("the data is, ", data);
   const { classes } = props;
   return (
     <div className="container">
@@ -81,6 +84,7 @@ const Details = (props) => {
             </Typography>
             <Typography>
               <span className="bold">Genre: </span>
+              {/* showing array in comma separated form */}
               {Array.isArray(data.genres) ? data.genres.join(", ") : null}
             </Typography>
             <Typography>
@@ -97,7 +101,9 @@ const Details = (props) => {
             </Typography>
             <Typography>
               <span className="bold">Plot: </span>
-              <a href={data.wiki_url}>(Wiki Link)</a>
+              <a target={"_blank"} href={data.wiki_url}>
+                (Wiki Link)
+              </a>
               {` ${data.storyline}`}
             </Typography>
             <div className="trailer">
@@ -106,9 +112,11 @@ const Details = (props) => {
               </Typography>
               {data.trailer_url ? (
                 <YouTube
+                  // extracted videoId
                   videoId={data.trailer_url.split("v=")[1]}
                   opts={{
                     playerVars: {
+                      // disabled autoplay
                       autoplay: 0,
                     },
                   }}
@@ -125,38 +133,27 @@ const Details = (props) => {
               <Typography>
                 <span className="bold">Artists: </span>
               </Typography>
-
+            </div>
+            {Array.isArray(data.artists) ? (
               <GridList
                 // style={{ flexWrap: "nowrap" }}
                 spacing={12}
                 cellHeight={250}
                 cols={2}
               >
-                {Array.isArray(data.artists)
-                  ? data.artists.map((item) => (
-                      <GridListTile
-                        // onClick={() => {
-                        //   props.history.push({
-                        //     pathname: `/movie/${item.id}`,
-                        //     id: item.id,
-                        //     isReleased: false,
-                        //   });
-                        // }}
-                        cols={1}
-                        key={item.id}
-                      >
-                        <img
-                          src={item.profile_url}
-                          alt={`${item.first_name} ${item.last_name}`}
-                        />
-                        <GridListTileBar
-                          title={`${item.first_name} ${item.last_name}`}
-                        />
-                      </GridListTile>
-                    ))
-                  : null}
+                {data.artists.map((item) => (
+                  <GridListTile cols={1} key={item.id}>
+                    <img
+                      src={item.profile_url}
+                      alt={`${item.first_name} ${item.last_name}`}
+                    />
+                    <GridListTileBar
+                      title={`${item.first_name} ${item.last_name}`}
+                    />
+                  </GridListTile>
+                ))}
               </GridList>
-            </div>
+            ) : null}
           </div>
         </div>
       </div>

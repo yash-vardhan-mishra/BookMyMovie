@@ -1,7 +1,4 @@
 import React, { useEffect, useState } from "react";
-
-import Header from "../../common/header/Header";
-import "./Home.css";
 import {
   GridListTile,
   GridList,
@@ -17,6 +14,9 @@ import {
   TextField,
   Button,
 } from "@material-ui/core";
+
+import "./Home.css";
+import Header from "../../common/header/Header";
 import FormInput from "../../common/formInput/FormInput";
 
 const styles = (theme) => ({
@@ -27,6 +27,9 @@ const styles = (theme) => ({
   },
   title: {
     color: theme.palette.primary.light,
+  },
+  releasedMovie: {
+    cursor: "pointer",
   },
 });
 
@@ -44,6 +47,7 @@ const Home = (props) => {
   });
 
   useEffect(() => {
+    // upcoming movies
     const fetchUpcomingMovies = () =>
       fetch(`${props.baseUrl}movies?status=published`)
         .then((rawResponse) => rawResponse.json())
@@ -53,6 +57,7 @@ const Home = (props) => {
         })
         .catch((err) => alert("something went wrong"));
 
+    // released movies
     const fetchReleasedMovies = () =>
       fetch(`${props.baseUrl}movies?status=released`)
         .then((rawResponse) => rawResponse.json())
@@ -62,6 +67,7 @@ const Home = (props) => {
         })
         .catch((err) => alert("something went wrong"));
 
+    // artists
     const fetchArtists = () =>
       fetch(`${props.baseUrl}artists`)
         .then((rawResponse) => rawResponse.json())
@@ -71,6 +77,7 @@ const Home = (props) => {
         })
         .catch((err) => alert("something went wrong"));
 
+    // genres
     const fetchGenres = () =>
       fetch(`${props.baseUrl}genres`)
         .then((rawResponse) => rawResponse.json())
@@ -88,8 +95,10 @@ const Home = (props) => {
 
   const handleFilterDataChange = (name, value) => {
     if (name !== "genre" && name !== "artists") {
+      // normally modifying non array items
       setFilterData((val) => ({ ...val, [name]: value }));
     } else {
+      // unchecking item if already present appending otherwise
       setFilterData((val) => {
         const newArr = [...val[name]];
         let filteredArr = newArr;
@@ -105,9 +114,11 @@ const Home = (props) => {
 
   const applyFilters = () => {
     let params = "";
+    // appending params for every filter applied
     Object.keys(filterData).map((item) => {
       if (item === "genre" || item === "artists") {
         if (filterData[item].length) {
+          // multiple artists and genres are selectable
           filterData[item].forEach((element) => {
             if (!params) {
               params += `${item}=${element}`;
@@ -131,6 +142,7 @@ const Home = (props) => {
       endPoint += `?${params}`;
     }
     console.log("the endPoint became, ", endPoint);
+    // fetching filtered data on the basis of modified endpoint
     fetch(endPoint)
       .then((rawResponse) => rawResponse.json())
       .then((res) => {
@@ -144,6 +156,8 @@ const Home = (props) => {
     <FormControl className={classes.cardComponent}>
       <InputLabel htmlFor="artists">Artists</InputLabel>
       <Select
+        // rendering custom value for array
+        renderValue={(val) => (Array.isArray(val) ? val.join(", ") : null)}
         value={filterData.artists}
         onChange={(e) => {
           handleFilterDataChange(e.target.name, e.target.value);
@@ -153,30 +167,30 @@ const Home = (props) => {
           id: "artists",
         }}
       >
-        {artists &&
-          artists.length &&
-          artists.map((item, index) => {
-            const artistName = `${item.first_name} ${item.last_name}`;
-            return (
-              <MenuItem value={artistName} key={item.id}>
-                <div
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <Checkbox
-                    checked={
-                      filterData.artists &&
-                      filterData.artists.length &&
-                      filterData.artists.includes(artistName)
-                    }
-                  />
-                  {artistName}
-                </div>
-              </MenuItem>
-            );
-          })}
+        {Array.isArray(artists)
+          ? artists.map((item, index) => {
+              // appending fullname together to be pushed to selected list
+              const artistName = `${item.first_name} ${item.last_name}`;
+              return (
+                <MenuItem value={artistName} key={item.id}>
+                  <div
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Checkbox
+                      checked={
+                        Array.isArray(filterData.artists) &&
+                        filterData.artists.includes(artistName)
+                      }
+                    />
+                    {artistName}
+                  </div>
+                </MenuItem>
+              );
+            })
+          : null}
       </Select>
     </FormControl>
   );
@@ -185,6 +199,7 @@ const Home = (props) => {
     <FormControl className={classes.cardComponent}>
       <InputLabel htmlFor="genre">Genre</InputLabel>
       <Select
+        renderValue={(val) => (Array.isArray(val) ? val.join(", ") : null)}
         value={filterData.genre}
         onChange={(e) => {
           handleFilterDataChange(e.target.name, e.target.value);
@@ -194,97 +209,94 @@ const Home = (props) => {
           id: "genre",
         }}
       >
-        {genre &&
-          genre.length &&
-          genre.map((item, index) => (
-            <MenuItem value={item.genre} key={item.id}>
-              <div
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <Checkbox
-                  checked={
-                    filterData.genre &&
-                    filterData.genre.length &&
-                    filterData.genre.includes(item.genre)
-                  }
-                />
-                {item.genre}
-              </div>
-            </MenuItem>
-          ))}
+        {Array.isArray(genre)
+          ? genre.map((item, index) => (
+              <MenuItem value={item.genre} key={item.id}>
+                <div
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  {/* box appears checked if it is in filterData state */}
+                  <Checkbox
+                    checked={
+                      Array.isArray(filterData.genre) &&
+                      filterData.genre.includes(item.genre)
+                    }
+                  />
+                  {item.genre}
+                </div>
+              </MenuItem>
+            ))
+          : null}
       </Select>
     </FormControl>
   );
 
   const { classes } = props;
-  console.log("the filterData is, ", filterData);
   return (
     <div className="container">
       <Header {...props} />
       <div className="innerContainer">
         <div className="upcomingMovies">Upcoming Movies</div>
-        {upcomingMovies && upcomingMovies.length ? (
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "space-around",
-              overflow: "hidden",
-            }}
-          >
+        {Array.isArray(upcomingMovies) ? (
+          <div className="horizontalList">
             <GridList
               style={{ flexWrap: "nowrap" }}
               spacing={12}
               cellHeight={250}
               cols={6}
             >
-              {upcomingMovies &&
-                upcomingMovies.length &&
-                upcomingMovies.map((item, index) => (
-                  <GridListTile
-                    onClick={() => {
-                      props.history.push({
-                        pathname: `/movie/${item.id}`,
-                        id: item.id,
-                        isReleased: false,
-                      });
-                    }}
-                    cellHeight={250}
-                    cols={1}
-                    key={item.id}
-                  >
-                    <img src={item.poster_url} alt={item.title} />
-                    <GridListTileBar title={item.title} />
-                  </GridListTile>
-                ))}
+              {Array.isArray(upcomingMovies)
+                ? upcomingMovies.map((item, index) => (
+                    <GridListTile
+                      // opening details page
+                      onClick={() => {
+                        props.history.push({
+                          pathname: `/movie/${item.id}`,
+                          id: item.id,
+                          isReleased: false,
+                        });
+                      }}
+                      cellHeight={250}
+                      cols={1}
+                      key={item.id}
+                    >
+                      <img src={item.poster_url} alt={item.title} />
+                      <GridListTileBar title={item.title} />
+                    </GridListTile>
+                  ))
+                : null}
             </GridList>
             <div className="middleContainer">
               <div className="releasedMoviesContainer">
                 <GridList spacing={12} cellHeight={350} cols={4}>
-                  {releasedMovies &&
-                    releasedMovies.length &&
-                    releasedMovies.map((item, index) => (
-                      <GridListTile
-                        onClick={() => {
-                          props.history.push({
-                            pathname: `/movie/${item.id}`,
-                            id: item.id,
-                            isReleased: true,
-                          });
-                        }}
-                        key={item.id}
-                        cols={1}
-                      >
-                        <img src={item.poster_url} alt={item.title} />
-                        <GridListTileBar
-                          title={item.title}
-                          subtitle={item.release_date}
-                        />
-                      </GridListTile>
-                    ))}
+                  {Array.isArray(releasedMovies)
+                    ? releasedMovies.map((item, index) => (
+                        <GridListTile
+                          className={classes.releasedMovie}
+                          onClick={() => {
+                            // rendering separate details for released movies on details page
+                            props.history.push({
+                              pathname: `/movie/${item.id}`,
+                              id: item.id,
+                              isReleased: true,
+                            });
+                          }}
+                          key={item.id}
+                          cols={1}
+                        >
+                          <img src={item.poster_url} alt={item.title} />
+                          <GridListTileBar
+                            title={item.title}
+                            subtitle={new Date(
+                              item.release_date
+                            ).toDateString()}
+                          />
+                        </GridListTile>
+                      ))
+                    : null}
                 </GridList>
               </div>
               <div className="filterPane">

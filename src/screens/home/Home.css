@@ -26,3 +26,9 @@
   width: 24%;
   margin: 16px;
 }
+.horizontalList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  overflow: hidden;
+}
